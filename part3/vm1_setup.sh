@@ -14,6 +14,6 @@ curl -s -H "Metadata-Flavor: Google" \
 
 curl -s -H "Metadata-Flavor: Google" \
   "http://metadata.google.internal/computeMetadata/v1/instance/attributes/vm2_setup" \
-  -o /opt/vm2/startup_flask.py
+  -o /opt/vm2/startup_flask.sh
 
 python3 /opt/vm2/create_child.py

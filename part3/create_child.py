@@ -128,7 +128,7 @@ def create_instance(
     internal_ip: str = None,
     external_access: bool = False,
     external_ipv4: str = None,
-    metadata_items = list[compute_v1.types.Items()]
+    metadata_items: list[compute_v1.types.Items()] = None,
     tags: compute_v1.Tags = None,
     service_account: str = None,
     accelerators: list[compute_v1.AcceleratorConfig] = None,
@@ -243,7 +243,6 @@ def create_instance(
 
     # add service account logic
     if service_account:
-        if service_account:
         instance.service_accounts = [compute_v1.ServiceAccount(
             # email for the service account
             email=service_account,
@@ -251,7 +250,8 @@ def create_instance(
             scopes=["https://www.googleapis.com/auth/cloud-platform"],
         )]
 
-    instance.tags = tags
+    if tags:
+        instance.tags = tags
 
     # Prepare the request to insert an instance.
     request = compute_v1.InsertInstanceRequest()
