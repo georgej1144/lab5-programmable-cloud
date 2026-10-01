@@ -232,7 +232,8 @@ def get_instance(project_id: str, zone: str, instance_name: str) -> compute_v1.I
     return instance
 
 # https://github.com/GoogleCloudPlatform/python-docs-samples/blob/main/compute/client_library/snippets/instances/create.py#L137C1-L269C86
-# @%@%@%@%@ with modifications to add startup-script metadata @%@%@%@%@ 
+# @%@%@%@%@ with modifications to add startup-script metadata @%@%@%@%@
+# @%@%@%@%@ with modifications to attach temporary service account @%@%@%@%@ 
 def create_instance(
     project_id: str,
     zone: str,
@@ -245,6 +246,9 @@ def create_instance(
     external_access: bool = False,
     external_ipv4: str = None,
     startup_script_filename: str = None,
+    metadata_items = list[compute_v1.types.Items()] = None
+    tags: compute_v1.Tags = None,
+    service_account: str = None
     accelerators: list[compute_v1.AcceleratorConfig] = None,
     preemptible: bool = False,
     spot: bool = False,
@@ -359,6 +363,16 @@ def create_instance(
             items.key = 'startup-script'
             items.value = script.read()
         instance.metadata.items = [items]
+
+    # add service account logic
+    if service_account:
+        if service_account:
+        instance.service_accounts = [compute_v1.ServiceAccount(
+            # email for the service account
+            email=service_account,
+            # generically broad scope since our roles will be narrow(ish)
+            scopes=["https://www.googleapis.com/auth/cloud-platform"],
+        )]
 
     # Prepare the request to insert an instance.
     request = compute_v1.InsertInstanceRequest()

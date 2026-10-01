@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 import os
 import sys
 import time
@@ -28,6 +27,7 @@ if __name__ == "__main__":
     instance_name = sys.argv[1]
     machine_type='e2-medium'
     disk_type = f'zones/{instance_zone}/diskTypes/pd-standard'
+    network_rule_name = "allow-5000"
     snapshot_name = "base-snapshot-" + instance_name
     
     # get instance using instance name given as argument
@@ -46,13 +46,14 @@ if __name__ == "__main__":
 
     print(f'Beginning instance creation benchmark:')
 
+    network_rule_tags = compute_v1.Tags(items=[network_rule_name])
     # no startup script this time because the snapshot should have everything setup
     # run 3 times for assignment. copy out printed times to TIMING.md
-    time_instance_creation(project_id, instance_zone, snapshot_disk, machine_type=machine_type, external_access=True)
+    time_instance_creation(project_id, instance_zone, snapshot_disk, machine_type=machine_type, external_access=True, tags=network_rule_tags)
 
-    time_instance_creation(project_id, instance_zone, snapshot_disk, machine_type=machine_type, external_access=True)
+    time_instance_creation(project_id, instance_zone, snapshot_disk, machine_type=machine_type, external_access=True, tags=network_rule_tags)
 
-    time_instance_creation(project_id, instance_zone, snapshot_disk, machine_type=machine_type, external_access=True)
+    time_instance_creation(project_id, instance_zone, snapshot_disk, machine_type=machine_type, external_access=True, tags=network_rule_tags)
     
 
     

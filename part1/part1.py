@@ -23,11 +23,6 @@ def firewall_rule_exists(project_id: str, rule_name: str) -> bool:
         return True
     except:
         return False
-
-# only build rule if it doesn't exist yet
-def do_firewall_setup(project_id: str, rule_name: str, network: str = "global/networks/default"):
-    if not firewall_rule_exists(project_id, rule_name):
-        create_firewall_rule(project_id, rule_name, network)
         
 # add tag to existing vm
 def set_tag_created_instance(project_id: str, instance_zone: str, instance: compute_v1.Instance, tag: str):
@@ -53,7 +48,17 @@ def set_tag_created_instance(project_id: str, instance_zone: str, instance: comp
     operation = instance_client.set_tags(request=request)
     wait_for_extended_operation(operation, "setting tags for instance") 
 
+# only build rule if it doesn't exist yet
+def do_firewall_setup(project_id: str, rule_name: str, network: str = "global/networks/default"):
+    if not firewall_rule_exists(project_id, rule_name):
+        create_firewall_rule(project_id, rule_name, network)
 
+def file_to_metadata_item(key: str, filename: str):
+    items = compute_v1.types.Items()
+    with open(filename, 'r') as f:
+        items.key = key
+        items.value = f.read()
+    return items
 
 if __name__ == "__main__":
     project_id = 'lab5-csci4253'
@@ -66,9 +71,13 @@ if __name__ == "__main__":
     
     image = get_image_from_family(project='ubuntu-os-cloud', family='ubuntu-2204-lts')
     disk = disk_from_image(disk_type, 10, True, image.self_link)
+
+    # put startup script in metadata object
+    startup_item = file_to_metadata_item('startup-script', '/home/jovyan/lab5-programmable-cloud/part1/startup_p1.sh')
+    
     # create instance using snippet helper
         # blocks until instance is created
-    my_instance = create_instance(project_id, instance_zone, instance_name, [disk], machine_type=machine_type, external_access=True, startup_script_filename='/home/jovyan/lab5-programmable-cloud/part1/startup_p1.sh')
+    my_instance = create_instance(project_id, instance_zone, instance_name, [disk], machine_type=machine_type, external_access=True, metadata_items=[startup_item])
 
     # create firewall rule if it doesnt already exist
     do_firewall_setup(project_id, network_rule_name)
