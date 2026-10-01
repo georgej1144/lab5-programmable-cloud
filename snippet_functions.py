@@ -232,8 +232,9 @@ def get_instance(project_id: str, zone: str, instance_name: str) -> compute_v1.I
     return instance
 
 # https://github.com/GoogleCloudPlatform/python-docs-samples/blob/main/compute/client_library/snippets/instances/create.py#L137C1-L269C86
-# @%@%@%@%@ with modifications to add startup-script metadata @%@%@%@%@
+# @%@%@%@%@ with modifications to add metadata @%@%@%@%@
 # @%@%@%@%@ with modifications to attach temporary service account @%@%@%@%@ 
+# @%@%@%@%@ with modifications to add tags @%@%@%@%@
 def create_instance(
     project_id: str,
     zone: str,
@@ -246,7 +247,7 @@ def create_instance(
     external_access: bool = False,
     external_ipv4: str = None,
     startup_script_filename: str = None,
-    metadata_items = list[compute_v1.types.Items()] = None
+    metadata_items = compute_v1.types.Items()]
     tags: compute_v1.Tags = None,
     service_account: str = None
     accelerators: list[compute_v1.AcceleratorConfig] = None,
