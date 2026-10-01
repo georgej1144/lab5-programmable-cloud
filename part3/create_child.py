@@ -128,10 +128,9 @@ def create_instance(
     internal_ip: str = None,
     external_access: bool = False,
     external_ipv4: str = None,
-    startup_script_filename: str = None,
-    metadata_items = compute_v1.types.Items()]
+    metadata_items = list[compute_v1.types.Items()]
     tags: compute_v1.Tags = None,
-    service_account: str = None
+    service_account: str = None,
     accelerators: list[compute_v1.AcceleratorConfig] = None,
     preemptible: bool = False,
     spot: bool = False,
@@ -239,13 +238,8 @@ def create_instance(
         # Set the delete protection bit
         instance.deletion_protection = True
 
-    # add startup script logic
-    if startup_script_filename:
-        with open(startup_script_filename, 'r') as script:
-            items = compute_v1.types.Items()
-            items.key = 'startup-script'
-            items.value = script.read()
-        instance.metadata.items = [items]
+    if metadata_items:
+        instance.metadata.items = metadata_items
 
     # add service account logic
     if service_account:
@@ -256,6 +250,8 @@ def create_instance(
             # generically broad scope since our roles will be narrow(ish)
             scopes=["https://www.googleapis.com/auth/cloud-platform"],
         )]
+
+    instance.tags = tags
 
     # Prepare the request to insert an instance.
     request = compute_v1.InsertInstanceRequest()
@@ -295,7 +291,7 @@ if __name__ == "__main__":
     disk = disk_from_image(disk_type, 10, True, image.self_link)
 
     # put startup script in metadata object
-    startup_script = file_to_metadata_item('startup-script', '/opt/vm1/startup_flask.sh')
+    startup_script = file_to_metadata_item('startup-script', '/opt/vm2/startup_flask.sh')
     
     # change startup script location
     my_instance = create_instance(project_id, instance_zone, instance_name, [disk], machine_type=machine_type, external_access=True, metadata_items=[startup_script], tags=network_rule_tags)

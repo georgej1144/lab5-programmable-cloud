@@ -3,7 +3,6 @@
 sudo apt update
 sudo apt install -y python3 python3-pip
 
-sudo python3 setup.py install
 sudo pip3 install google-cloud-compute
 
 mkdir -p /opt/vm2

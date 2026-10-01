@@ -246,10 +246,9 @@ def create_instance(
     internal_ip: str = None,
     external_access: bool = False,
     external_ipv4: str = None,
-    startup_script_filename: str = None,
-    metadata_items = compute_v1.types.Items()]
+    metadata_items = list[compute_v1.types.Items()]
     tags: compute_v1.Tags = None,
-    service_account: str = None
+    service_account: str = None,
     accelerators: list[compute_v1.AcceleratorConfig] = None,
     preemptible: bool = False,
     spot: bool = False,
@@ -357,13 +356,8 @@ def create_instance(
         # Set the delete protection bit
         instance.deletion_protection = True
 
-    # add startup script logic
-    if startup_script_filename:
-        with open(startup_script_filename, 'r') as script:
-            items = compute_v1.types.Items()
-            items.key = 'startup-script'
-            items.value = script.read()
-        instance.metadata.items = [items]
+    if metadata_items:
+        instance.metadata.items = metadata_items
 
     # add service account logic
     if service_account:
@@ -374,6 +368,8 @@ def create_instance(
             # generically broad scope since our roles will be narrow(ish)
             scopes=["https://www.googleapis.com/auth/cloud-platform"],
         )]
+
+    instance.tags = tags
 
     # Prepare the request to insert an instance.
     request = compute_v1.InsertInstanceRequest()
